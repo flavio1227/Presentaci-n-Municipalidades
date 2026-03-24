@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Building2, Calculator, FileText, CheckCircle, ArrowRight, Printer, Globe, AlertCircle, Target, Workflow, TrendingUp, Laptop, RotateCcw } from 'lucide-react';
 
 function App() {
+  const logoSplashUrl = `${import.meta.env.BASE_URL}logo-inhgeomin.svg`;
   const [currentStep, setCurrentStep] = useState(0);
   const [tramiteType, setTramiteType] = useState<'municipal' | 'inhgeomin' | null>(null);
   const [showSplash, setShowSplash] = useState(true);
@@ -166,10 +167,10 @@ function App() {
         className="min-h-screen flex items-center justify-center relative"
         style={{
           backgroundColor: '#050E19',
-          backgroundImage: "linear-gradient(rgba(5,14,25,0.85), rgba(5,14,25,0.85)), url('/logo-inhgeomin.svg')",
+          backgroundImage: `linear-gradient(rgba(5,14,25,0.78), rgba(5,14,25,0.78)), url('${logoSplashUrl}')`,
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundSize: 'contain',
+          backgroundSize: '70% auto',
         }}
         onClick={handleSplashClick}
       >
