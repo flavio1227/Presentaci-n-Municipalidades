@@ -164,7 +164,13 @@ function App() {
     return (
       <div
         className="min-h-screen flex items-center justify-center relative"
-        style={{ backgroundColor: '#050E19' }}
+        style={{
+          backgroundColor: '#050E19',
+          backgroundImage: "linear-gradient(rgba(5,14,25,0.85), rgba(5,14,25,0.85)), url('/logo-inhgeomin.svg')",
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
+        }}
         onClick={handleSplashClick}
       >
         <button
@@ -194,7 +200,7 @@ function App() {
               opacity: splashStep >= 1 ? 1 : 0
             }}
           >
-            Transformamos nuestro trabajo en valor público
+            Ordenando y modernizando la gestión minera para generar desarrollo y empleo.
           </p>
           <p
             className="text-sm text-slate-400 animate-pulse transition-opacity duration-1000 delay-1000"
@@ -317,7 +323,7 @@ function App() {
 
           <div className="text-center mt-3" style={{ color: '#7EF516' }}>
             <p className="text-xs">
-              Unidad de Modernización | Municipalidad © 2025
+              Unidad de Modernización | Municipalidades SIGEM
             </p>
           </div>
         </div>
@@ -708,7 +714,7 @@ function App() {
         {/* Footer Info */}
         <div className="text-center mt-3" style={{ color: '#7EF516' }}>
           <p className="text-xs">
-            Sistema de orientación para trámites mineros | INHGEOMIN © 2025
+            Sistema de orientación para trámites mineros | INHGEOMIN | Municipalidades SIGEM
           </p>
         </div>
       </div>
