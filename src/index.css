@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-yellow {
+  0%, 100% {
+    color: rgb(234, 179, 8);
+  }
+  50% {
+    color: rgb(7, 89, 133);
+  }
+}
+
+.animate-pulse-yellow {
+  animation: pulse-yellow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-text-color {
+  0%, 100% {
+    color: rgb(255, 255, 255);
+  }
+  50% {
+    color: rgb(113, 63, 18);
+  }
+}
+
+.animate-pulse-text-color {
+  animation: pulse-text-color 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-alert-bg {
+  0%, 100% {
+    background-color: rgb(7, 89, 133);
+    border-color: rgb(3, 105, 161);
+  }
+  50% {
+    background-color: rgb(254, 249, 195);
+    border-color: rgb(253, 224, 71);
+  }
+}
+
+.animate-pulse-alert-bg {
+  animation: pulse-alert-bg 1.5s ease-in-out infinite;
+}
