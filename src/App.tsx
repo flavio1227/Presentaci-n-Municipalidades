@@ -24,7 +24,7 @@ import {
   Scale,
   UsersRound,
   Map,
-  IdCard,
+  BadgeCheck,
   PackageCheck,
   type LucideIcon,
 } from 'lucide-react';
@@ -99,7 +99,7 @@ const MUNICIPAL_PERMISO_STEPS: {
     title: 'Elaboración de permiso',
     plain: 'Se redacta y genera el documento oficial del permiso con sus datos definitivos.',
     sigem: true,
-    icon: IdCard,
+    icon: BadgeCheck,
   },
   {
     title: 'Entrega de permiso',
