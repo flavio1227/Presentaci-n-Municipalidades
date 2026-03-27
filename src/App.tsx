@@ -1,5 +1,115 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Calculator, FileText, CheckCircle, ArrowRight, Printer, Globe, AlertCircle, Target, Workflow, TrendingUp, Laptop, RotateCcw } from 'lucide-react';
+import {
+  User,
+  Building2,
+  Calculator,
+  FileText,
+  CheckCircle,
+  ArrowRight,
+  Printer,
+  Globe,
+  AlertCircle,
+  Target,
+  Workflow,
+  TrendingUp,
+  Laptop,
+  RotateCcw,
+  FilePenLine,
+  ClipboardCheck,
+  FolderOpen,
+  MapPinned,
+  ScrollText,
+  ShieldCheck,
+  Trees,
+  Scale,
+  UsersRound,
+  Map,
+  IdCard,
+  PackageCheck,
+  type LucideIcon,
+} from 'lucide-react';
+
+const MUNICIPAL_PERMISO_STEPS: {
+  title: string;
+  plain: string;
+  sigem: boolean;
+  icon: LucideIcon;
+}[] = [
+  {
+    title: 'Solicitud',
+    plain: 'La persona o empresa presenta la solicitud y los documentos base ante la municipalidad.',
+    sigem: false,
+    icon: FilePenLine,
+  },
+  {
+    title: 'Verificación de documentos',
+    plain: 'Se revisa que toda la documentación requerida esté completa y sea válida.',
+    sigem: true,
+    icon: ClipboardCheck,
+  },
+  {
+    title: 'Conformación de expediente',
+    plain: 'Se arma y ordena el expediente del trámite dentro del sistema.',
+    sigem: true,
+    icon: FolderOpen,
+  },
+  {
+    title: 'Verificación de áreas disponibles',
+    plain: 'Se consulta en mapa si el área solicitada está disponible y no choca con otras solicitudes o concesiones.',
+    sigem: true,
+    icon: MapPinned,
+  },
+  {
+    title: 'Emisión de constancia',
+    plain: 'Se emite la constancia que acredita el avance o resultado de esa etapa del proceso.',
+    sigem: false,
+    icon: ScrollText,
+  },
+  {
+    title: 'Presentación de licencia ambiental',
+    plain: 'Se recibe o verifica la licencia ambiental exigida para continuar el trámite.',
+    sigem: false,
+    icon: ShieldCheck,
+  },
+  {
+    title: 'Inspección de campo',
+    plain: 'Personal técnico visita el sitio para comprobar condiciones reales del área o del proyecto.',
+    sigem: true,
+    icon: Trees,
+  },
+  {
+    title: 'Evaluación legal',
+    plain: 'El área legal revisa que el expediente cumpla la normativa aplicable.',
+    sigem: true,
+    icon: Scale,
+  },
+  {
+    title: 'Valoración',
+    plain: 'Instancia que analiza el caso y emite criterio sobre el otorgamiento del permiso.',
+    sigem: false,
+    icon: UsersRound,
+  },
+  {
+    title: 'Inscripción del permiso',
+    plain: 'Se registra formalmente el permiso en el sistema o registro que corresponda.',
+    sigem: false,
+    icon: Map,
+  },
+  {
+    title: 'Elaboración de permiso',
+    plain: 'Se redacta y genera el documento oficial del permiso con sus datos definitivos.',
+    sigem: true,
+    icon: IdCard,
+  },
+  {
+    title: 'Entrega de permiso',
+    plain: 'El ciudadano recibe el permiso ya emitido. Fin del proceso municipal de este tipo.',
+    sigem: false,
+    icon: PackageCheck,
+  },
+];
+
+const MUNICIPAL_FLOW_END_STEP = 5 + MUNICIPAL_PERMISO_STEPS.length + 1;
 
 function App() {
   const logoSplashUrl = `${import.meta.env.BASE_URL}logo-inhgeomin.svg`;
@@ -48,7 +158,9 @@ function App() {
   const advanceStep = () => {
     if (currentStep < 5 && !tramiteType) {
       setCurrentStep(currentStep + 1);
-    } else if (tramiteType && currentStep >= 6 && currentStep < 9) {
+    } else if (tramiteType === 'inhgeomin' && currentStep >= 6 && currentStep < 9) {
+      setCurrentStep(currentStep + 1);
+    } else if (tramiteType === 'municipal' && currentStep >= 6 && currentStep < MUNICIPAL_FLOW_END_STEP) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -468,117 +580,124 @@ function App() {
           {/* Municipal Flow */}
           {tramiteType === 'municipal' && (
             <div className="animate-fadeIn">
-              <div className="text-center mb-3">
+              <div className="text-center mb-3 space-y-2">
                 <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-4 py-1.5 rounded-full font-semibold text-sm">
                   <Building2 className="w-4 h-4" />
-                  Trámite Municipal
+                  Trámite municipal · Pequeña minería y minería artesanal
                 </div>
+                <h2 className="text-base md:text-lg font-bold text-slate-800 leading-snug px-1">
+                  Otorgamiento de permisos de pequeña minería y minería artesanal
+                </h2>
+                <p className="text-xs text-slate-600 max-w-2xl mx-auto">
+                  Avance paso a paso. Siguiente: clic en la pantalla o tecla → / espacio. Los pasos marcados con{' '}
+                  <span className="font-semibold text-emerald-700">SIGEM</span> se gestionan en la plataforma SIGEM.
+                </p>
+                {currentStep >= 6 && currentStep < MUNICIPAL_FLOW_END_STEP && (
+                  <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-xs font-medium">
+                    <span>Paso {Math.min(currentStep - 5, MUNICIPAL_PERMISO_STEPS.length)} de {MUNICIPAL_PERMISO_STEPS.length}</span>
+                    <span className="text-slate-400">|</span>
+                    <span className="text-orange-600">
+                      {currentStep - 5 < MUNICIPAL_PERMISO_STEPS.length ? 'Sigue el orden' : 'Resumen completo'}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Alerta importante */}
               <div className="mb-3 p-3 bg-cyan-50 border border-cyan-200 rounded-lg flex gap-3">
-                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 animate-pulse-yellow" />
-                <p className="text-sm text-cyan-900 leading-relaxed">
-                  La alcaldía podrá otorgar un permiso sobre un área solicitada únicamente si ya existen áreas previamente adjudicadas por el INHGEOMIN. En caso contrario, será responsabilidad de la municipalidad realizar el trámite correspondiente y gestionar la adjudicación de las áreas ante el INHGEOMIN.
-                </p>
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-cyan-700" />
+                <div className="text-sm text-cyan-900 leading-relaxed space-y-1">
+                  <p className="font-semibold text-cyan-950">Importante</p>
+                  <p>
+                    La alcaldía solo puede otorgar permiso sobre un área si ya existen áreas adjudicadas por el INHGEOMIN.
+                    Si no, la municipalidad debe tramitar la adjudicación ante el INHGEOMIN antes de seguir.
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-2">
-                {currentStep >= 6 && (
-                  <>
-                    <div
-                      className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-500 cursor-pointer ${
-                        currentStep >= 7 ? 'bg-orange-50 border-orange-200' : 'bg-slate-100 border-slate-200 hover:bg-slate-200'
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentStep(6);
-                      }}
-                    >
-                      <div className={`w-7 h-7 text-white rounded-full flex items-center justify-center font-bold text-sm ${
-                        currentStep >= 7 ? 'bg-orange-500' : 'bg-slate-400'
-                      }`}>
-                        6
-                      </div>
-                      <div className="flex-1">
-                        <div className={`font-semibold text-sm ${currentStep >= 7 ? 'text-slate-800' : 'text-slate-500'}`}>
-                          Calculadora muestra trámites municipales
+                {MUNICIPAL_PERMISO_STEPS.map((step, index) => {
+                  const n = index + 1;
+                  const visibleCount = Math.max(0, currentStep - 5);
+                  const isRevealed = visibleCount >= n;
+                  const isCurrent = visibleCount === n;
+                  const Icon = step.icon;
+
+                  if (!isRevealed) return null;
+
+                  const rowAlign = index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse';
+
+                  return (
+                    <div key={n}>
+                      {index > 0 && (
+                        <div className="flex justify-center my-1.5">
+                          <div
+                            className="w-0.5 h-4 rounded-full bg-gradient-to-b from-orange-300 to-orange-400"
+                            aria-hidden
+                          />
                         </div>
-                        <div className="text-xs text-slate-600">Personal selecciona el trámite correspondiente</div>
+                      )}
+                      <div
+                        className={`flex flex-col ${rowAlign} gap-3 p-3 rounded-xl border-2 transition-all duration-300 cursor-pointer shadow-sm ${
+                          isCurrent
+                            ? 'border-orange-400 bg-orange-50 ring-2 ring-orange-200'
+                            : 'border-orange-100 bg-white hover:border-orange-200'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentStep(5 + n);
+                        }}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        <div
+                          className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${
+                            step.sigem ? 'bg-emerald-100 text-emerald-800' : 'bg-orange-100 text-orange-800'
+                          }`}
+                        >
+                          <Icon className="w-6 h-6" strokeWidth={2} />
+                        </div>
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-600 text-white text-xs font-bold">
+                              {n}
+                            </span>
+                            <span className="text-sm font-bold text-slate-900">{step.title}</span>
+                            {step.sigem && (
+                              <span className="text-[10px] uppercase tracking-wide font-bold text-white bg-emerald-600 px-2 py-0.5 rounded-full">
+                                En plataforma SIGEM
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{step.plain}</p>
+                        </div>
+                        <ArrowRight
+                          className={`hidden md:block flex-shrink-0 w-5 h-5 mt-1 ${isCurrent ? 'text-orange-600' : 'text-slate-300'}`}
+                        />
                       </div>
-                      <FileText className={`w-5 h-5 ${currentStep >= 7 ? 'text-orange-600' : 'text-slate-400'}`} />
                     </div>
-                  </>
+                  );
+                })}
+
+                {currentStep >= MUNICIPAL_FLOW_END_STEP && (
+                  <div className="flex justify-center mt-4">
+                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-3 rounded-xl shadow-lg flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
+                      <CheckCircle className="w-6 h-6 flex-shrink-0" />
+                      <div>
+                        <span className="text-sm font-bold block">Fin del proceso municipal</span>
+                        <span className="text-xs text-green-100">
+                          Se completaron las etapas del otorgamiento (según diagrama de referencia). Use «Reiniciar» para volver al inicio.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
-                {currentStep >= 7 && (
-                  <>
-                    <div className="flex justify-center">
-                      <div className="w-0.5 h-3 bg-orange-300 rounded-full" />
-                    </div>
-
-                    <div
-                      className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-500 cursor-pointer ${
-                        currentStep >= 8 ? 'bg-orange-50 border-orange-200' : 'bg-slate-100 border-slate-200 hover:bg-slate-200'
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentStep(7);
-                      }}
-                    >
-                      <div className={`w-7 h-7 text-white rounded-full flex items-center justify-center font-bold text-sm ${
-                        currentStep >= 8 ? 'bg-orange-500' : 'bg-slate-400'
-                      }`}>
-                        7
-                      </div>
-                      <div className="flex-1">
-                        <div className={`font-semibold text-sm ${currentStep >= 8 ? 'text-slate-800' : 'text-slate-500'}`}>
-                          Acceso a web oficial de INHGEOMIN DUMAPE
-                        </div>
-                        <div className="text-xs text-slate-600">Enlace directo al portal oficial</div>
-                      </div>
-                      <Globe className={`w-5 h-5 ${currentStep >= 8 ? 'text-orange-600' : 'text-slate-400'}`} />
-                    </div>
-                  </>
-                )}
-
-                {currentStep >= 8 && (
-                  <>
-                    <div className="flex justify-center">
-                      <div className="w-0.5 h-3 bg-orange-300 rounded-full" />
-                    </div>
-
-                    <div
-                      className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-500 cursor-pointer ${
-                        currentStep >= 9 ? 'bg-orange-50 border-orange-200' : 'bg-slate-100 border-slate-200 hover:bg-slate-200'
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentStep(8);
-                      }}
-                    >
-                      <div className={`w-7 h-7 text-white rounded-full flex items-center justify-center font-bold text-sm ${
-                        currentStep >= 9 ? 'bg-orange-500' : 'bg-slate-400'
-                      }`}>
-                        8
-                      </div>
-                      <div className="flex-1">
-                        <div className={`font-semibold text-sm ${currentStep >= 9 ? 'text-slate-800' : 'text-slate-500'}`}>
-                          Realizar trámite del ciudadano e Impresión de información
-                        </div>
-                        <div className="text-xs text-slate-600">Entrega al ciudadano</div>
-                      </div>
-                      <Printer className={`w-5 h-5 ${currentStep >= 9 ? 'text-orange-600' : 'text-slate-400'}`} />
-                    </div>
-                  </>
-                )}
-
-                {currentStep >= 9 && (
-                  <div className="flex justify-center mt-3">
-                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" />
-                      <span className="text-sm font-bold">Fin del proceso</span>
-                    </div>
+                {currentStep >= 6 && currentStep < MUNICIPAL_FLOW_END_STEP && (
+                  <div className="mt-3 text-center">
+                    <p className="text-slate-500 text-xs animate-pulse">
+                      Clic en cualquier lugar o teclado → para ver el siguiente paso
+                    </p>
                   </div>
                 )}
               </div>
