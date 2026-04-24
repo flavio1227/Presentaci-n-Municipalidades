@@ -118,6 +118,7 @@ function App() {
   const [tramiteType, setTramiteType] = useState<'municipal' | 'inhgeomin' | null>(null);
   const [decisionSelection, setDecisionSelection] = useState<'municipal' | 'inhgeomin'>('municipal');
   const [showSplash, setShowSplash] = useState(true);
+  const [showGlossary, setShowGlossary] = useState(false);
   const [splashStep, setSplashStep] = useState(0);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -141,6 +142,7 @@ function App() {
     setTramiteType(null);
     setDecisionSelection('municipal');
     setShowSplash(true);
+    setShowGlossary(false);
     setSplashStep(0);
   };
 
@@ -182,6 +184,25 @@ function App() {
   useEffect(() => {
     if (!showSplash) {
       const handleKeyDown = (event: KeyboardEvent) => {
+        if (showGlossary) {
+          if (
+            event.key === 'ArrowRight' ||
+            event.key === 'ArrowDown' ||
+            event.key === ' ' ||
+            event.key === 'Enter' ||
+            event.key === 'PageDown'
+          ) {
+            event.preventDefault();
+            setShowGlossary(false);
+          } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+            event.preventDefault();
+            setShowGlossary(false);
+            setShowSplash(true);
+            setSplashStep(2);
+          }
+          return;
+        }
+
         const isInDecisionScreen = currentStep >= 5 && !tramiteType;
         const isInEndScreen =
           (tramiteType === 'municipal' && currentStep >= MUNICIPAL_FLOW_END_STEP) ||
@@ -212,6 +233,11 @@ function App() {
           resetFlow();
           return;
         }
+        if (isInDecisionScreen && (event.key === ' ' || event.key === 'Enter' || event.key === 'PageDown')) {
+          event.preventDefault();
+          handleTramiteDecision(decisionSelection);
+          return;
+        }
         if (event.key === 'ArrowRight' || event.key === ' ' || event.key === 'Enter' || event.key === 'PageDown') {
           event.preventDefault();
           advanceStep();
@@ -224,13 +250,14 @@ function App() {
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [currentStep, tramiteType, showSplash]);
+  }, [currentStep, tramiteType, showSplash, showGlossary, decisionSelection]);
 
   const handleSplashClick = () => {
     if (splashStep < 2) {
       setSplashStep(splashStep + 1);
     } else {
       setShowSplash(false);
+      setShowGlossary(true);
     }
   };
 
@@ -320,6 +347,74 @@ function App() {
           >
             Haz clic en cualquier lugar para continuar
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (showGlossary) {
+    return (
+      <div
+        className="min-h-screen py-4 px-3 relative flex items-center"
+        style={{ backgroundColor: palette.dark }}
+        onClick={() => setShowGlossary(false)}
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            resetToBeginning();
+          }}
+          className="absolute top-4 right-4 p-2 rounded-full transition-colors z-50"
+          style={{ color: palette.white, backgroundColor: 'rgba(255,255,255,0.12)' }}
+        >
+          <RotateCcw size={24} />
+        </button>
+        <div className="max-w-5xl mx-auto w-full">
+          <div className="rounded-2xl p-6 md:p-8 shadow-2xl border" style={{ backgroundColor: palette.white, borderColor: palette.light }}>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold" style={{ color: palette.dark }}>Glosario rápido</h2>
+              <p className="text-sm mt-2" style={{ color: palette.mid }}>
+                Conceptos clave antes de iniciar el flujo del trámite
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="rounded-xl border p-4" style={{ borderColor: palette.light, backgroundColor: palette.white }}>
+                <h3 className="font-bold mb-1" style={{ color: palette.dark }}>Banco de materiales</h3>
+                <p className="text-sm text-slate-600">
+                  En el contexto de construcción es una excavación a cielo abierto destinada a la extracción de materiales pétreos (arena, grava, roca, arcilla) para obras de ingeniería civil como carreteras, terraplenes y concreto.
+                </p>
+              </div>
+
+              <div className="rounded-xl border p-4" style={{ borderColor: palette.light, backgroundColor: palette.white }}>
+                <h3 className="font-bold mb-1" style={{ color: palette.dark }}>Desasolvamiento o desazolve</h3>
+                <p className="text-sm text-slate-600">
+                  Es la acción de limpiar, retirar lodo, basura, arena o sedimentos que obstruyen el flujo de agua en tuberías, alcantarillas, drenajes, canales o ríos. Es un proceso técnico de mantenimiento crucial para prevenir inundaciones, malos olores y asegurar el correcto funcionamiento de los sistemas hidráulicos.
+                </p>
+              </div>
+
+              <div className="rounded-xl border p-4" style={{ borderColor: palette.light, backgroundColor: palette.white }}>
+                <h3 className="font-bold mb-1" style={{ color: palette.dark }}>Corte y relleno</h3>
+                <p className="text-sm text-slate-600">
+                  Es una técnica fundamental en construcción y minería que consiste en excavar (cortar) tierra o material de zonas altas y trasladarlo a zonas bajas (rellenar) para nivelar el terreno o estabilizar estructuras.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowGlossary(false);
+                }}
+                className="px-6 py-2 rounded-lg text-sm font-semibold text-white shadow-lg transition-all"
+                style={{ backgroundColor: palette.dark }}
+              >
+                Avanzar al flujo
+              </button>
+              <p className="text-xs mt-2 text-slate-500">Control: → o ↓ para continuar</p>
+            </div>
+          </div>
         </div>
       </div>
     );
