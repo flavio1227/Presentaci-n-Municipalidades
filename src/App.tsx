@@ -107,7 +107,7 @@ const MUNICIPAL_PERMISO_STEPS: {
 const MUNICIPAL_FLOW_END_STEP = 5 + MUNICIPAL_PERMISO_STEPS.length + 1;
 
 function App() {
-  const logoSplashUrl = `${import.meta.env.BASE_URL}logo-inhgeomin.svg`;
+  const logoSplashUrl = `${import.meta.env.BASE_URL}logo-inhgeomin.svg?v=20260424`;
   const palette = {
     white: '#ffffff',
     dark: '#334155',
@@ -193,6 +193,16 @@ function App() {
           return;
         }
         if (isInDecisionScreen && event.key === 'ArrowDown') {
+          event.preventDefault();
+          handleTramiteDecision(decisionSelection);
+          return;
+        }
+        if (isInDecisionScreen && event.key === 'ArrowLeft') {
+          event.preventDefault();
+          setDecisionSelection('municipal');
+          return;
+        }
+        if (isInDecisionScreen && event.key === 'ArrowRight') {
           event.preventDefault();
           setDecisionSelection('inhgeomin');
           return;
@@ -407,7 +417,7 @@ function App() {
                 </h3>
                 <p className="text-slate-600 text-sm">La calculadora ha determinado la ubicación</p>
                 <p className="text-slate-500 text-xs mt-1">
-                  Control: ↑ Municipalidad, ↓ INHGEOMIN, → Confirmar
+                  Control: ← Municipalidad, → INHGEOMIN, ↓ Confirmar
                 </p>
               </div>
 
