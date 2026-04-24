@@ -116,6 +116,7 @@ function App() {
   };
   const [currentStep, setCurrentStep] = useState(0);
   const [tramiteType, setTramiteType] = useState<'municipal' | 'inhgeomin' | null>(null);
+  const [decisionSelection, setDecisionSelection] = useState<'municipal' | 'inhgeomin'>('municipal');
   const [showSplash, setShowSplash] = useState(true);
   const [splashStep, setSplashStep] = useState(0);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -132,11 +133,13 @@ function App() {
   const resetFlow = () => {
     setCurrentStep(0);
     setTramiteType(null);
+    setDecisionSelection('municipal');
   };
 
   const resetToBeginning = () => {
     setCurrentStep(0);
     setTramiteType(null);
+    setDecisionSelection('municipal');
     setShowSplash(true);
     setSplashStep(0);
   };
@@ -156,6 +159,8 @@ function App() {
   const advanceStep = () => {
     if (currentStep < 5 && !tramiteType) {
       setCurrentStep(currentStep + 1);
+    } else if (currentStep >= 5 && !tramiteType) {
+      handleTramiteDecision(decisionSelection);
     } else if (tramiteType === 'inhgeomin' && currentStep >= 6 && currentStep < 9) {
       setCurrentStep(currentStep + 1);
     } else if (tramiteType === 'municipal' && currentStep >= 6 && currentStep < MUNICIPAL_FLOW_END_STEP) {
@@ -177,6 +182,26 @@ function App() {
   useEffect(() => {
     if (!showSplash) {
       const handleKeyDown = (event: KeyboardEvent) => {
+        const isInDecisionScreen = currentStep >= 5 && !tramiteType;
+        const isInEndScreen =
+          (tramiteType === 'municipal' && currentStep >= MUNICIPAL_FLOW_END_STEP) ||
+          (tramiteType === 'inhgeomin' && currentStep >= 9);
+
+        if (isInDecisionScreen && event.key === 'ArrowUp') {
+          event.preventDefault();
+          setDecisionSelection('municipal');
+          return;
+        }
+        if (isInDecisionScreen && event.key === 'ArrowDown') {
+          event.preventDefault();
+          setDecisionSelection('inhgeomin');
+          return;
+        }
+        if (isInEndScreen && event.key === 'ArrowDown') {
+          event.preventDefault();
+          resetFlow();
+          return;
+        }
         if (event.key === 'ArrowRight' || event.key === ' ' || event.key === 'Enter' || event.key === 'PageDown') {
           event.preventDefault();
           advanceStep();
@@ -381,6 +406,9 @@ function App() {
                   ¿Dónde se realiza el trámite?
                 </h3>
                 <p className="text-slate-600 text-sm">La calculadora ha determinado la ubicación</p>
+                <p className="text-slate-500 text-xs mt-1">
+                  Control: ↑ Municipalidad, ↓ INHGEOMIN, → Confirmar
+                </p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-3">
@@ -391,7 +419,10 @@ function App() {
                     handleTramiteDecision('municipal');
                   }}
                   className="group relative overflow-hidden text-white p-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                  style={{ backgroundColor: palette.dark }}
+                  style={{
+                    backgroundColor: palette.dark,
+                    boxShadow: decisionSelection === 'municipal' ? `0 0 0 3px ${palette.light}` : undefined,
+                  }}
                 >
                   <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10" />
                   <Building2 className="w-8 h-8 mb-1.5 relative z-10" />
@@ -406,7 +437,10 @@ function App() {
                     handleTramiteDecision('inhgeomin');
                   }}
                   className="group relative overflow-hidden text-white p-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                  style={{ backgroundColor: palette.mid }}
+                  style={{
+                    backgroundColor: palette.mid,
+                    boxShadow: decisionSelection === 'inhgeomin' ? `0 0 0 3px ${palette.dark}` : undefined,
+                  }}
                 >
                   <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10" />
                   <Building2 className="w-8 h-8 mb-1.5 relative z-10" />
@@ -535,7 +569,7 @@ function App() {
                 })}
 
                 {currentStep >= MUNICIPAL_FLOW_END_STEP && (
-                  <div className="flex justify-center mt-4">
+                  <div className="flex flex-col items-center mt-4 gap-2">
                     <div className="text-white px-5 py-3 rounded-xl shadow-lg flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left" style={{ backgroundColor: palette.dark }}>
                       <CheckCircle className="w-6 h-6 flex-shrink-0" />
                       <div>
@@ -545,6 +579,7 @@ function App() {
                         </span>
                       </div>
                     </div>
+                    <p className="text-xs text-slate-500">Presiona ↓ para reiniciar sin mouse</p>
                   </div>
                 )}
 
@@ -677,11 +712,12 @@ function App() {
                 )}
 
                 {currentStep >= 9 && (
-                  <div className="flex justify-center mt-3">
+                  <div className="flex flex-col items-center mt-3 gap-2">
                     <div className="text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2" style={{ backgroundColor: palette.dark }}>
                       <CheckCircle className="w-5 h-5" />
                       <span className="text-sm font-bold">Fin del proceso</span>
                     </div>
+                    <p className="text-xs text-slate-500">Presiona ↓ para reiniciar sin mouse</p>
                   </div>
                 )}
               </div>
