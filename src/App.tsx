@@ -24,7 +24,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-const MUNICIPAL_PERMISO_STEPS: {
+const MUNICIPAL_PEQUENA_STEPS: {
   title: string;
   plain: string;
   sigem: boolean;
@@ -103,8 +103,73 @@ const MUNICIPAL_PERMISO_STEPS: {
     icon: PackageCheck,
   },
 ];
-
-const MUNICIPAL_FLOW_END_STEP = 5 + MUNICIPAL_PERMISO_STEPS.length + 1;
+const MUNICIPAL_ARTESANAL_STEPS: {
+  title: string;
+  plain: string;
+  sigem: boolean;
+  icon: LucideIcon;
+}[] = [
+  {
+    title: 'Solicitud de área',
+    plain: 'La persona o grupo presenta la solicitud de minería artesanal en Secretaría Municipal.',
+    sigem: false,
+    icon: FilePenLine,
+  },
+  {
+    title: 'Revisión de documentos',
+    plain: 'Secretaría confirma que los requisitos estén completos o notifica para corregir.',
+    sigem: true,
+    icon: ClipboardCheck,
+  },
+  {
+    title: 'Conformación de expediente',
+    plain: 'Se arma el expediente y se envía a Catastro, Ambiental y Legal para revisión.',
+    sigem: true,
+    icon: FolderOpen,
+  },
+  {
+    title: 'Disponibilidad de áreas',
+    plain: 'Catastro valida si existe área adjudicada disponible para autorizar la solicitud.',
+    sigem: true,
+    icon: MapPinned,
+  },
+  {
+    title: 'Evaluación e inspección ambiental',
+    plain: 'Se programa inspección, se realiza visita técnica y se emite dictamen ambiental.',
+    sigem: false,
+    icon: Trees,
+  },
+  {
+    title: 'Evaluación legal',
+    plain: 'Secretaría revisa dictámenes técnicos y emite criterio legal para la Corporación.',
+    sigem: true,
+    icon: Scale,
+  },
+  {
+    title: 'Sesión de Corporación Municipal',
+    plain: 'La Corporación evalúa el caso y aprueba o rechaza la solicitud.',
+    sigem: false,
+    icon: UsersRound,
+  },
+  {
+    title: 'Inscripción del permiso',
+    plain: 'Catastro registra el permiso en el listado oficial y lo comunica a Secretaría.',
+    sigem: true,
+    icon: Map,
+  },
+  {
+    title: 'Elaboración de permisos',
+    plain: 'Se generan certificados de operación y registros finales para entrega.',
+    sigem: true,
+    icon: BadgeCheck,
+  },
+  {
+    title: 'Entrega de resolución y permisos',
+    plain: 'Secretaría entrega resolución administrativa, permiso de operación y permiso minero.',
+    sigem: false,
+    icon: PackageCheck,
+  },
+];
 
 function App() {
   const logoSplashUrl = `${import.meta.env.BASE_URL}logo-inhgeomin.svg?v=20260424`;
@@ -116,11 +181,16 @@ function App() {
   };
   const [currentStep, setCurrentStep] = useState(0);
   const [tramiteType, setTramiteType] = useState<'municipal' | 'inhgeomin' | null>(null);
+  const [municipalSubtype, setMunicipalSubtype] = useState<'pequena' | 'artesanal' | null>(null);
+  const [municipalSelection, setMunicipalSelection] = useState<'pequena' | 'artesanal'>('pequena');
   const [decisionSelection, setDecisionSelection] = useState<'municipal' | 'inhgeomin'>('municipal');
   const [showSplash, setShowSplash] = useState(true);
   const [showGlossary, setShowGlossary] = useState(false);
   const [splashStep, setSplashStep] = useState(0);
   const stepRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const activeMunicipalSteps = municipalSubtype === 'artesanal' ? MUNICIPAL_ARTESANAL_STEPS : MUNICIPAL_PEQUENA_STEPS;
+  const municipalFlowEndStep = 5 + activeMunicipalSteps.length + 1;
 
   const handleStepClick = (step: number) => {
     setCurrentStep(step);
@@ -128,18 +198,31 @@ function App() {
 
   const handleTramiteDecision = (type: 'municipal' | 'inhgeomin') => {
     setTramiteType(type);
+    if (type === 'municipal') {
+      setMunicipalSubtype(null);
+      setMunicipalSelection('pequena');
+    }
+    setCurrentStep(6);
+  };
+
+  const handleMunicipalSubtypeDecision = (type: 'pequena' | 'artesanal') => {
+    setMunicipalSubtype(type);
     setCurrentStep(6);
   };
 
   const resetFlow = () => {
     setCurrentStep(0);
     setTramiteType(null);
+    setMunicipalSubtype(null);
+    setMunicipalSelection('pequena');
     setDecisionSelection('municipal');
   };
 
   const resetToBeginning = () => {
     setCurrentStep(0);
     setTramiteType(null);
+    setMunicipalSubtype(null);
+    setMunicipalSelection('pequena');
     setDecisionSelection('municipal');
     setShowSplash(true);
     setShowGlossary(false);
@@ -163,16 +246,20 @@ function App() {
       setCurrentStep(currentStep + 1);
     } else if (currentStep >= 5 && !tramiteType) {
       handleTramiteDecision(decisionSelection);
+    } else if (tramiteType === 'municipal' && !municipalSubtype && currentStep >= 6) {
+      handleMunicipalSubtypeDecision(municipalSelection);
     } else if (tramiteType === 'inhgeomin' && currentStep >= 6 && currentStep < 9) {
       setCurrentStep(currentStep + 1);
-    } else if (tramiteType === 'municipal' && currentStep >= 6 && currentStep < MUNICIPAL_FLOW_END_STEP) {
+    } else if (tramiteType === 'municipal' && currentStep >= 6 && currentStep < municipalFlowEndStep) {
       setCurrentStep(currentStep + 1);
     }
   };
 
   const goBackStep = () => {
     if (currentStep > 0) {
-      if (currentStep === 6 && tramiteType) {
+      if (currentStep === 6 && tramiteType === 'municipal' && municipalSubtype) {
+        setMunicipalSubtype(null);
+      } else if (currentStep === 6 && tramiteType) {
         setTramiteType(null);
         setCurrentStep(5);
       } else {
@@ -204,8 +291,9 @@ function App() {
         }
 
         const isInDecisionScreen = currentStep >= 5 && !tramiteType;
+        const isInMunicipalSubtypeScreen = tramiteType === 'municipal' && currentStep >= 6 && !municipalSubtype;
         const isInEndScreen =
-          (tramiteType === 'municipal' && currentStep >= MUNICIPAL_FLOW_END_STEP) ||
+          (tramiteType === 'municipal' && municipalSubtype !== null && currentStep >= municipalFlowEndStep) ||
           (tramiteType === 'inhgeomin' && currentStep >= 9);
 
         if (isInDecisionScreen && event.key === 'ArrowUp') {
@@ -216,6 +304,26 @@ function App() {
         if (isInDecisionScreen && event.key === 'ArrowDown') {
           event.preventDefault();
           handleTramiteDecision(decisionSelection);
+          return;
+        }
+        if (isInMunicipalSubtypeScreen && event.key === 'ArrowUp') {
+          event.preventDefault();
+          setMunicipalSelection('pequena');
+          return;
+        }
+        if (isInMunicipalSubtypeScreen && event.key === 'ArrowDown') {
+          event.preventDefault();
+          handleMunicipalSubtypeDecision(municipalSelection);
+          return;
+        }
+        if (isInMunicipalSubtypeScreen && event.key === 'ArrowLeft') {
+          event.preventDefault();
+          setMunicipalSelection('pequena');
+          return;
+        }
+        if (isInMunicipalSubtypeScreen && event.key === 'ArrowRight') {
+          event.preventDefault();
+          setMunicipalSelection('artesanal');
           return;
         }
         if (isInDecisionScreen && event.key === 'ArrowLeft') {
@@ -238,6 +346,11 @@ function App() {
           handleTramiteDecision(decisionSelection);
           return;
         }
+        if (isInMunicipalSubtypeScreen && (event.key === ' ' || event.key === 'Enter' || event.key === 'PageDown')) {
+          event.preventDefault();
+          handleMunicipalSubtypeDecision(municipalSelection);
+          return;
+        }
         if (event.key === 'ArrowRight' || event.key === ' ' || event.key === 'Enter' || event.key === 'PageDown') {
           event.preventDefault();
           advanceStep();
@@ -250,7 +363,7 @@ function App() {
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [currentStep, tramiteType, showSplash, showGlossary, decisionSelection]);
+  }, [currentStep, tramiteType, showSplash, showGlossary, decisionSelection, municipalSubtype, municipalSelection, municipalFlowEndStep]);
 
   const handleSplashClick = () => {
     if (splashStep < 2) {
@@ -287,14 +400,15 @@ function App() {
     if (showSplash) return;
     let targetKey: string | null = null;
     if (!tramiteType && currentStep > 0 && currentStep <= 5) targetKey = `main-${currentStep}`;
-    if (tramiteType === 'municipal' && currentStep >= 6) targetKey = `municipal-${Math.min(currentStep - 5, MUNICIPAL_PERMISO_STEPS.length)}`;
+    if (tramiteType === 'municipal' && !municipalSubtype && currentStep >= 6) targetKey = 'municipal-type';
+    if (tramiteType === 'municipal' && municipalSubtype && currentStep >= 6) targetKey = `municipal-${Math.min(currentStep - 5, activeMunicipalSteps.length)}`;
     if (tramiteType === 'inhgeomin' && currentStep >= 6 && currentStep <= 9) targetKey = `inhgeomin-${currentStep}`;
     if (!targetKey) return;
     const el = stepRefs.current[targetKey];
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [currentStep, tramiteType, showSplash]);
+  }, [currentStep, tramiteType, showSplash, municipalSubtype, activeMunicipalSteps.length]);
 
   if (showSplash) {
     return (
@@ -568,26 +682,79 @@ function App() {
           ) : (
             <>
           {/* Municipal Flow */}
-          {tramiteType === 'municipal' && (
+          {tramiteType === 'municipal' && !municipalSubtype && (
             <div className="animate-fadeIn">
               <div className="text-center mb-3 space-y-2">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full font-semibold text-sm" style={{ backgroundColor: palette.light, color: palette.dark }}>
                   <Building2 className="w-4 h-4" />
-                  Trámite municipal · Pequeña minería y minería artesanal
+                  Trámite municipal
                 </div>
                 <h2 className="text-base md:text-lg font-bold text-slate-800 leading-snug px-1">
-                  Otorgamiento de permisos de pequeña minería y minería artesanal
+                  Selecciona el tipo de trámite municipal
+                </h2>
+                <p className="text-xs text-slate-600">Control: ← Pequeña minería, → Minería artesanal, ↓ Confirmar</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-3" ref={(el) => { stepRefs.current['municipal-type'] = el; }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleMunicipalSubtypeDecision('pequena');
+                  }}
+                  className="group relative overflow-hidden text-white p-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                  style={{
+                    backgroundColor: palette.dark,
+                    boxShadow: municipalSelection === 'pequena' ? `0 0 0 3px ${palette.light}` : undefined,
+                  }}
+                >
+                  <h4 className="text-base font-bold mb-1 relative z-10">Pequeña minería</h4>
+                  <p className="text-sm relative z-10" style={{ color: palette.light }}>
+                    Flujo actual de 12 pasos para permisos municipales
+                  </p>
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleMunicipalSubtypeDecision('artesanal');
+                  }}
+                  className="group relative overflow-hidden text-white p-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                  style={{
+                    backgroundColor: palette.mid,
+                    boxShadow: municipalSelection === 'artesanal' ? `0 0 0 3px ${palette.dark}` : undefined,
+                  }}
+                >
+                  <h4 className="text-base font-bold mb-1 relative z-10">Minería artesanal</h4>
+                  <p className="text-sm relative z-10" style={{ color: palette.white }}>
+                    Flujo simplificado de 10 pasos para explotación artesanal
+                  </p>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {tramiteType === 'municipal' && municipalSubtype && (
+            <div className="animate-fadeIn">
+              <div className="text-center mb-3 space-y-2">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full font-semibold text-sm" style={{ backgroundColor: palette.light, color: palette.dark }}>
+                  <Building2 className="w-4 h-4" />
+                  Trámite municipal · {municipalSubtype === 'pequena' ? 'Pequeña minería' : 'Minería artesanal'}
+                </div>
+                <h2 className="text-base md:text-lg font-bold text-slate-800 leading-snug px-1">
+                  {municipalSubtype === 'pequena'
+                    ? 'Otorgamiento de permisos de pequeña minería'
+                    : 'Otorgamiento de permisos de minería artesanal'}
                 </h2>
                 <p className="text-xs text-slate-600 max-w-2xl mx-auto">
                   Avance paso a paso. Siguiente: clic en la pantalla o tecla → / espacio. Los pasos marcados con{' '}
                   <span className="font-semibold" style={{ color: palette.dark }}>SIGEM</span> se gestionan en la plataforma SIGEM.
                 </p>
-                {currentStep >= 6 && currentStep < MUNICIPAL_FLOW_END_STEP && (
+                {currentStep >= 6 && currentStep < municipalFlowEndStep && (
                   <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-xs font-medium">
-                    <span>Paso {Math.min(currentStep - 5, MUNICIPAL_PERMISO_STEPS.length)} de {MUNICIPAL_PERMISO_STEPS.length}</span>
+                    <span>Paso {Math.min(currentStep - 5, activeMunicipalSteps.length)} de {activeMunicipalSteps.length}</span>
                     <span className="text-slate-400">|</span>
                   <span style={{ color: palette.dark }}>
-                      {currentStep - 5 < MUNICIPAL_PERMISO_STEPS.length ? 'Sigue el orden' : 'Resumen completo'}
+                      {currentStep - 5 < activeMunicipalSteps.length ? 'Sigue el orden' : 'Resumen completo'}
                     </span>
                   </div>
                 )}
@@ -606,7 +773,7 @@ function App() {
               </div>
 
               <div className="space-y-2">
-                {MUNICIPAL_PERMISO_STEPS.map((step, index) => {
+                {activeMunicipalSteps.map((step, index) => {
                   const n = index + 1;
                   const visibleCount = Math.max(0, currentStep - 5);
                   const isRevealed = visibleCount >= n;
@@ -673,7 +840,7 @@ function App() {
                   );
                 })}
 
-                {currentStep >= MUNICIPAL_FLOW_END_STEP && (
+                {currentStep >= municipalFlowEndStep && (
                   <div className="flex flex-col items-center mt-4 gap-2">
                     <div className="text-white px-5 py-3 rounded-xl shadow-lg flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left" style={{ backgroundColor: palette.dark }}>
                       <CheckCircle className="w-6 h-6 flex-shrink-0" />
@@ -688,7 +855,7 @@ function App() {
                   </div>
                 )}
 
-                {currentStep >= 6 && currentStep < MUNICIPAL_FLOW_END_STEP && (
+                {currentStep >= 6 && currentStep < municipalFlowEndStep && (
                   <div className="mt-3 text-center">
                     <p className="text-slate-500 text-xs animate-pulse">
                       Clic en cualquier lugar o teclado → para ver el siguiente paso
