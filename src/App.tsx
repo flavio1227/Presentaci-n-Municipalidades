@@ -553,7 +553,7 @@ function App() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-3">
-          <h1 className="text-2xl font-bold mb-1" style={{ color: palette.white }}>Flujo del Trámite Minero</h1>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: palette.white }}>Flujo de atención al ciudadano</h1>
           <div className="mt-1.5 inline-block px-4 py-1 rounded-full text-xs font-semibold shadow-lg" style={{ backgroundColor: palette.light, color: palette.dark }}>
             Sistema de Orientación al Ciudadano
           </div>
