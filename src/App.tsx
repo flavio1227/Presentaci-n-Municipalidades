@@ -231,7 +231,7 @@ function App() {
 
   const steps = [
     { id: 1, label: 'Ciudadano llega a Municipalidad', icon: User },
-    { id: 2, label: 'Personal consulta el proceso', icon: Building2 },
+    { id: 2, label: 'La municipalidad atiende el ciudadano', icon: Building2 },
     { id: 3, label: 'Abre Calculadora de Trámites', icon: Calculator },
     { id: 4, label: 'Ingresa datos del ciudadano', icon: FileText },
     { id: 5, label: 'Calculadora determina el trámite', icon: Calculator },
